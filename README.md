@@ -90,3 +90,7 @@ ckb-cli rpc get_live_cell --tx-hash 0x4ec75b5a8de8d180853d5046760a99285c73283a5d
   "status": "live"
 }
 ```
+### Code Comments:
+```
+when writing comments for APIs and subcommands, be sure to clearly specify the purpose, data type, and any constraint conditions of each parameter. For return values, you should specify the data type of the return value and possible return values.
+```
