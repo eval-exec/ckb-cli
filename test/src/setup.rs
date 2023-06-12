@@ -43,12 +43,12 @@ impl Setup {
     }
 
     pub fn ready(&mut self, spec: &dyn Spec) -> ProcessGuard {
-        self.modify_ckb_toml(&*spec);
-        self.modify_spec_toml(&*spec);
+        self.modify_ckb_toml(spec);
+        self.modify_spec_toml(spec);
 
         let child_process = Command::new(&self.ckb_bin)
             .env("RUST_BACKTRACE", "full")
-            .args(&["-C", &self.ckb_dir, "run", "--ba-advanced"])
+            .args(["-C", &self.ckb_dir, "run", "--ba-advanced"])
             .stdin(Stdio::null())
             .stdout(Stdio::null())
             .stderr(Stdio::inherit())
@@ -71,7 +71,7 @@ impl Setup {
 
     pub fn consensus(&self) -> Consensus {
         let path = Path::new(&self.ckb_dir).join("specs").join("dev.toml");
-        let content = fs::read_to_string(&path).unwrap();
+        let content = fs::read_to_string(path).unwrap();
         let spec_toml: ChainSpec = toml::from_str(&content).unwrap();
         spec_toml.build_consensus().unwrap()
     }
