@@ -1,6 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::io::Read;
+use std::os::unix::prelude::PermissionsExt;
 use std::path::PathBuf;
 use std::thread;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
@@ -51,11 +52,17 @@ pub fn read_password(repeat: bool, prompt: Option<&str>) -> Result<String, Strin
 pub fn get_key_store(ckb_cli_dir: PathBuf) -> Result<KeyStore, String> {
     let mut keystore_dir = ckb_cli_dir;
     keystore_dir.push("keystore");
-    fs::create_dir_all(&keystore_dir)
-        .map_err(|err| err.to_string())
-        .and_then(|_| {
-            KeyStore::from_dir(keystore_dir, ScryptType::default()).map_err(|err| err.to_string())
-        })
+    fs::create_dir_all(&keystore_dir).map_err(|err| err.to_string())?;
+
+    fs::set_permissions(&keystore_dir, fs::Permissions::from_mode(0o700)).map_err(|err| {
+        format!(
+            "failed to set permission for  keystore: {:?}, err: {:?}",
+            keystore_dir,
+            err.to_string()
+        )
+    })?;
+
+    KeyStore::from_dir(keystore_dir, ScryptType::default()).map_err(|err| err.to_string())
 }
 
 pub fn get_address(network: Option<NetworkType>, m: &ArgMatches) -> Result<AddressPayload, String> {

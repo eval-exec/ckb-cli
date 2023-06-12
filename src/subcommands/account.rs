@@ -1,5 +1,6 @@
 use std::fs;
 use std::io::Write;
+use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 
 use ckb_sdk::{
@@ -388,6 +389,16 @@ impl<'a> CliSubCommand for AccountSubCommand<'a> {
                     .map_err(|err| err.to_string())?;
                 file.write(format!("{:x}", chain_code).as_bytes())
                     .map_err(|err| err.to_string())?;
+                file.flush().map_err(|err| err.to_string())?;
+                drop(file);
+                fs::set_permissions(key_path, fs::Permissions::from_mode(0o400)).map_err(
+                    |err| {
+                        format!(
+                            "Failed to set permission of file: {:?}, error: {:?}",
+                            key_path, err
+                        )
+                    },
+                )?;
                 let resp = serde_json::json!({
                     "message": format!(
                         "Success exported account as extended privkey to: \"{}\", please use this file carefully",

@@ -7,6 +7,7 @@ use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::fmt;
 use std::fs;
+use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::time::{Duration, Instant};
@@ -421,6 +422,7 @@ impl PassphraseKeyStore {
         let json_value = key.to_json(password, self.scrypt_type);
         let mut file = fs::File::create(&filepath)?;
         serde_json::to_writer(&mut file, &json_value).map_err(|err| Error::Io(err.to_string()))?;
+        fs::set_permissions(&filepath, fs::Permissions::from_mode(0o400))?;
         Ok(filepath)
     }
 
