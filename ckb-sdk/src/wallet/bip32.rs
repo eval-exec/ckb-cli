@@ -152,15 +152,9 @@ pub struct ChainCode(pub [u8; 32]);
 impl_array_newtype!(ChainCode, u8, 32);
 
 /// A fingerprint
-#[derive(Debug, Clone, Copy)]
+#[derive(Default, Debug, Clone, Copy)]
 pub struct Fingerprint(pub [u8; 4]);
 impl_array_newtype!(Fingerprint, u8, 4);
-
-impl Default for Fingerprint {
-    fn default() -> Fingerprint {
-        Fingerprint([0; 4])
-    }
-}
 
 /// Extended private key
 #[derive(Clone, PartialEq, Eq)]
