@@ -99,9 +99,8 @@ fn main() -> Result<(), io::Error> {
         config.set_debug(configs["debug"].as_bool().unwrap_or(false));
         config.set_no_sync(configs["no-sync"].as_bool().unwrap_or(false));
         config.set_color(ansi_support && configs["color"].as_bool().unwrap_or(true));
-        output_format =
-            OutputFormat::from_str(configs["output_format"].as_str().unwrap_or("yaml"))
-                .unwrap_or(OutputFormat::Yaml);
+        output_format = OutputFormat::from_str(configs["output_format"].as_str().unwrap_or("yaml"))
+            .unwrap_or(OutputFormat::Yaml);
         config.set_output_format(output_format);
         config.set_completion_style(configs["completion_style"].as_bool().unwrap_or(true));
         config.set_edit_style(configs["edit_style"].as_bool().unwrap_or(true));
@@ -138,8 +137,9 @@ fn main() -> Result<(), io::Error> {
             ("subscribe", Some(sub_sub_matches)) => {
                 PubSubCommand::new(output_format, color).process(sub_sub_matches, debug)
             }
-            _ => RpcSubCommand::new(&mut rpc_client, &mut raw_rpc_client)
-                .process(sub_matches, debug),
+            _ => {
+                RpcSubCommand::new(&mut rpc_client, &mut raw_rpc_client).process(sub_matches, debug)
+            }
         },
         ("account", Some(sub_matches)) => {
             AccountSubCommand::new(&mut plugin_mgr, &mut key_store).process(sub_matches, debug)

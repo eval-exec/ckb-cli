@@ -751,7 +751,9 @@ impl TryFrom<ReprTxHelper> for TxHelper {
     fn try_from(repr: ReprTxHelper) -> Result<Self, Self::Error> {
         let transaction = packed::Transaction::from(repr.transaction).into_view();
         let multisig_configs = repr
-            .multisig_configs.into_values().map(MultisigConfig::try_from)
+            .multisig_configs
+            .into_values()
+            .map(MultisigConfig::try_from)
             .collect::<Result<Vec<_>, String>>()?;
         let signatures: HashMap<Bytes, HashSet<Bytes>> = repr
             .signatures
