@@ -304,7 +304,7 @@ impl KeyStore {
             if path.is_file() {
                 let filename = path.file_name().and_then(OsStr::to_str).expect("file_name");
                 if let Some((hash160, ckb_root_opt)) = filename
-                    .rsplitn(2, "--")
+                    .rsplit("--")
                     .next()
                     .and_then(|hash160_hex| {
                         let mut hash160_bin = [0u8; 20];
