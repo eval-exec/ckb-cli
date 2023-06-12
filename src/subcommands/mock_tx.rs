@@ -176,7 +176,7 @@ impl<'a> CliSubCommand for MockTxSubCommand<'a> {
             ("template", Some(m)) => {
                 let lock_arg_opt: Option<H160> =
                     FixedHashParser::<H160>::default().from_matches_opt(m, "lock-arg", false)?;
-                let lock_arg = lock_arg_opt.unwrap_or_else(H160::default);
+                let lock_arg = lock_arg_opt.unwrap_or_default();
 
                 let genesis_info = get_genesis_info(&self.genesis_info, self.rpc_client)?;
                 let sighash_type_hash = genesis_info.sighash_type_hash();

@@ -201,7 +201,7 @@ impl Resource {
     }
 }
 
-impl<'a> HeaderChecker for Resource {
+impl HeaderChecker for Resource {
     fn check_valid(
         &self,
         block_hash: &Byte32,

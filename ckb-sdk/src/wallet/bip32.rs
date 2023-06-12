@@ -328,7 +328,7 @@ impl<'a> From<&'a [ChildNumber]> for DerivationPath {
     }
 }
 
-impl ::std::iter::FromIterator<ChildNumber> for DerivationPath {
+impl std::iter::FromIterator<ChildNumber> for DerivationPath {
     fn from_iter<T>(iter: T) -> Self
     where
         T: IntoIterator<Item = ChildNumber>,
@@ -337,9 +337,9 @@ impl ::std::iter::FromIterator<ChildNumber> for DerivationPath {
     }
 }
 
-impl<'a> ::std::iter::IntoIterator for &'a DerivationPath {
+impl<'a> IntoIterator for &'a DerivationPath {
     type Item = &'a ChildNumber;
-    type IntoIter = ::std::slice::Iter<'a, ChildNumber>;
+    type IntoIter = std::slice::Iter<'a, ChildNumber>;
     fn into_iter(self) -> Self::IntoIter {
         self.0.iter()
     }
@@ -423,17 +423,17 @@ impl DerivationPath {
     /// Get an [Iterator] over the children of this [DerivationPath]
     /// starting with the given [ChildNumber].
     pub fn children_from(&self, cn: ChildNumber) -> DerivationPathIterator {
-        DerivationPathIterator::start_from(&self, cn)
+        DerivationPathIterator::start_from(self, cn)
     }
 
     /// Get an [Iterator] over the unhardened children of this [DerivationPath].
     pub fn normal_children(&self) -> DerivationPathIterator {
-        DerivationPathIterator::start_from(&self, ChildNumber::Normal { index: 0 })
+        DerivationPathIterator::start_from(self, ChildNumber::Normal { index: 0 })
     }
 
     /// Get an [Iterator] over the hardened children of this [DerivationPath].
     pub fn hardened_children(&self) -> DerivationPathIterator {
-        DerivationPathIterator::start_from(&self, ChildNumber::Hardened { index: 0 })
+        DerivationPathIterator::start_from(self, ChildNumber::Hardened { index: 0 })
     }
 }
 
@@ -529,8 +529,7 @@ impl ExtendedPrivKey {
             depth: 0,
             parent_fingerprint: Default::default(),
             child_number: ChildNumber::from_normal_idx(0)?,
-            private_key: secp256k1::SecretKey::from_slice(&hmac_result[..32])
-                .map_err(Error::Ecdsa)?,
+            private_key: SecretKey::from_slice(&hmac_result[..32]).map_err(Error::Ecdsa)?,
             chain_code: ChainCode::from(&hmac_result[32..]),
         })
     }
@@ -574,7 +573,7 @@ impl ExtendedPrivKey {
 
         hmac_engine.input(&be_n);
         let hmac_result: Hmac<sha512::Hash> = Hmac::from_engine(hmac_engine);
-        let mut sk = secp256k1::SecretKey::from_slice(&hmac_result[..32]).map_err(Error::Ecdsa)?;
+        let mut sk = SecretKey::from_slice(&hmac_result[..32]).map_err(Error::Ecdsa)?;
         sk.add_assign(&self.private_key[..]).map_err(Error::Ecdsa)?;
 
         Ok(ExtendedPrivKey {
@@ -607,7 +606,7 @@ impl ExtendedPubKey {
             depth: sk.depth,
             parent_fingerprint: sk.parent_fingerprint,
             child_number: sk.child_number,
-            public_key: secp256k1::PublicKey::from_secret_key(secp, &sk.private_key),
+            public_key: PublicKey::from_secret_key(secp, &sk.private_key),
             chain_code: sk.chain_code,
         }
     }
@@ -641,7 +640,7 @@ impl ExtendedPubKey {
 
                 let hmac_result: Hmac<sha512::Hash> = Hmac::from_engine(hmac_engine);
 
-                let private_key = secp256k1::SecretKey::from_slice(&hmac_result[..32])?;
+                let private_key = SecretKey::from_slice(&hmac_result[..32])?;
                 let chain_code = ChainCode::from(&hmac_result[32..]);
                 Ok((private_key, chain_code))
             }
@@ -1042,7 +1041,7 @@ mod tests {
     /// Obtain a string with the base58check encoding of a slice
     /// (Tack the first 4 256-digits of the object's Bitcoin hash onto the end.)
     fn check_encode_slice(data: &[u8]) -> String {
-        let checksum = sha256d::Hash::hash(&data);
+        let checksum = sha256d::Hash::hash(data);
         encode_iter(data.iter().cloned().chain(checksum[0..4].iter().cloned()))
     }
 
@@ -1050,7 +1049,7 @@ mod tests {
     /// (Tack the first 4 256-digits of the object's Bitcoin hash onto the end.)
     #[allow(dead_code)]
     fn check_encode_slice_to_fmt(fmt: &mut fmt::Formatter, data: &[u8]) -> fmt::Result {
-        let checksum = sha256d::Hash::hash(&data);
+        let checksum = sha256d::Hash::hash(data);
         let iter = data.iter().cloned().chain(checksum[0..4].iter().cloned());
         format_iter(fmt, iter)
     }
@@ -1100,7 +1099,7 @@ mod tests {
                     _ => [0x04, 0x35, 0x83, 0x94],
                 }[..],
             );
-            ret[4] = self.inner.depth as u8;
+            ret[4] = self.inner.depth;
             ret[5..9].copy_from_slice(&self.inner.parent_fingerprint[..]);
 
             BigEndian::write_u32(&mut ret[9..13], u32::from(self.inner.child_number));
@@ -1131,14 +1130,14 @@ mod tests {
             } else if data[0..4] == [0x04u8, 0x35, 0x83, 0x94] {
                 NetworkType::Testnet
             } else {
-                return Err(B58Error::InvalidVersion((&data[0..4]).to_vec()));
+                return Err(B58Error::InvalidVersion((data[0..4]).to_vec()));
             };
             let privkey = ExtendedPrivKey {
                 depth: data[4],
                 parent_fingerprint: Fingerprint::from(&data[5..9]),
                 child_number,
                 chain_code: ChainCode::from(&data[13..45]),
-                private_key: secp256k1::SecretKey::from_slice(&data[46..78])
+                private_key: SecretKey::from_slice(&data[46..78])
                     .map_err(|e| B58Error::Other(e.to_string()))?,
             };
 
@@ -1159,7 +1158,7 @@ mod tests {
                     _ => [0x04u8, 0x35, 0x87, 0xCF],
                 }[..],
             );
-            ret[4] = self.inner.depth as u8;
+            ret[4] = self.inner.depth;
             ret[5..9].copy_from_slice(&self.inner.parent_fingerprint[..]);
 
             BigEndian::write_u32(&mut ret[9..13], u32::from(self.inner.child_number));
@@ -1189,7 +1188,7 @@ mod tests {
             } else if data[0..4] == [0x04u8, 0x35, 0x87, 0xCF] {
                 NetworkType::Testnet
             } else {
-                return Err(B58Error::InvalidVersion((&data[0..4]).to_vec()));
+                return Err(B58Error::InvalidVersion((data[0..4]).to_vec()));
             };
 
             let pubkey = ExtendedPubKey {

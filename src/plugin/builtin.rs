@@ -156,7 +156,7 @@ impl DefaultKeyStore {
                     .map(serilize_key_set),
                 KeyStoreRequest::ListAccount => {
                     let mut accounts = keystore.get_accounts().iter().collect::<Vec<_>>();
-                    accounts.sort_by(|a, b| a.1.cmp(&b.1));
+                    accounts.sort_by(|a, b| a.1.cmp(b.1));
                     let accounts = accounts
                         .into_iter()
                         .map(|(lock_arg, _)| lock_arg.clone())

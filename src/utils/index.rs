@@ -184,7 +184,7 @@ impl IndexController {
             } else {
                 eprintln!(
                     "Stop index thread timeout(state: {}), give up",
-                    self.state().read().to_string()
+                    self.state().read()
                 );
                 return;
             }
@@ -208,14 +208,14 @@ where
     }
     let network_type = get_network_type(rpc_client)?;
     let genesis_hash: H256 = genesis_info.header().hash().unpack();
-    with_index_db(&index_dir, genesis_hash, |backend, cf| {
+    with_index_db(index_dir, genesis_hash, |backend, cf| {
         let db = IndexDatabase::from_db(backend, cf, network_type, genesis_info, false)?;
         Ok(func(db))
     })
     .map_err(|_err| {
         format!(
             "Index database may not ready, sync process: {}",
-            index_controller.state().read().to_string()
+            index_controller.state().read()
         )
     })
 }

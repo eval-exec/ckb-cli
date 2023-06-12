@@ -17,6 +17,7 @@ use clap::ArgMatches;
 use faster_hex::hex_decode;
 use url::Url;
 
+#[allow(clippy::wrong_self_convention)]
 pub trait ArgParser<T> {
     fn parse(&self, input: &str) -> Result<T, String>;
 
@@ -51,7 +52,7 @@ pub trait ArgParser<T> {
     ) -> Result<Vec<R>, String> {
         matches
             .values_of_lossy(name)
-            .unwrap_or_else(Vec::new)
+            .unwrap_or_default()
             .into_iter()
             .map(|input| self.parse(&input).map(Into::into))
             .collect()
@@ -259,7 +260,7 @@ pub struct HexFilePathParser;
 impl ArgParser<Vec<u8>> for HexFilePathParser {
     fn parse(&self, input: &str) -> Result<Vec<u8>, String> {
         let path: PathBuf = FilePathParser::new(true).parse(input)?;
-        let content = fs::read_to_string(&path).map_err(|err| err.to_string())?;
+        let content = fs::read_to_string(path).map_err(|err| err.to_string())?;
         HexParser.parse(content.as_str())
     }
 }
@@ -270,7 +271,7 @@ impl ArgParser<PrivkeyWrapper> for PrivkeyPathParser {
     fn parse(&self, input: &str) -> Result<PrivkeyWrapper, String> {
         let path: PathBuf = FilePathParser::new(true).parse(input)?;
         let mut content = String::new();
-        let mut file = fs::File::open(&path).map_err(|err| err.to_string())?;
+        let mut file = fs::File::open(path).map_err(|err| err.to_string())?;
         file.read_to_string(&mut content)
             .map_err(|err| err.to_string())?;
         let privkey_string: String = content
@@ -291,7 +292,7 @@ impl ArgParser<MasterPrivKey> for ExtendedPrivkeyPathParser {
     fn parse(&self, input: &str) -> Result<MasterPrivKey, String> {
         let path: PathBuf = FilePathParser::new(true).parse(input)?;
         let mut content = String::new();
-        let mut file = fs::File::open(&path).map_err(|err| err.to_string())?;
+        let mut file = fs::File::open(path).map_err(|err| err.to_string())?;
         file.read_to_string(&mut content)
             .map_err(|err| err.to_string())?;
         let lines = content
@@ -338,6 +339,7 @@ impl Default for AddressPayloadOption {
     }
 }
 
+#[derive(Default)]
 pub struct AddressParser {
     network: Option<NetworkType>,
     payload: Option<AddressPayloadOption>,
@@ -392,15 +394,6 @@ impl AddressParser {
     pub fn set_full_type(&mut self, code_hash: H256) -> &mut Self {
         self.payload = Some(AddressPayloadOption::FullType(Some(code_hash)));
         self
-    }
-}
-
-impl Default for AddressParser {
-    fn default() -> AddressParser {
-        AddressParser {
-            network: None,
-            payload: None,
-        }
     }
 }
 

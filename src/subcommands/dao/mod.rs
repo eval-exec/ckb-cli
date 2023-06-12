@@ -251,7 +251,7 @@ impl<'a> DAOSubCommand<'a> {
             blake2b.update(&init_witness.as_bytes());
             for other_witness in witnesses.iter().skip(1) {
                 blake2b.update(&(other_witness.len() as u64).to_le_bytes());
-                blake2b.update(&other_witness);
+                blake2b.update(other_witness);
             }
             let mut message = [0u8; 32];
             blake2b.finalize(&mut message);
@@ -326,7 +326,7 @@ impl<'a> DAOSubCommand<'a> {
     }
 
     pub(crate) fn rpc_client(&mut self) -> &mut HttpRpcClient {
-        &mut self.rpc_client
+        self.rpc_client
     }
 }
 

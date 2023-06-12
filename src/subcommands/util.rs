@@ -265,7 +265,7 @@ impl<'a> UtilSubCommand<'a> {
                             .long("locktime")
                             .required(true)
                             .takes_value(true)
-                            .validator(|input| DateTime::parse_from_rfc3339(&input).map(|_| ()).map_err(|err| err.to_string()))
+                            .validator(|input| DateTime::parse_from_rfc3339(input).map(|_| ()).map_err(|err| err.to_string()))
                             .about("The locktime in RFC3339 format. Example: 2014-11-28T21:00:00+00:00")
                     ),
                 App::new("cell-meta")
@@ -589,7 +589,7 @@ message = "0x"
                         file.read_to_end(&mut data).map_err(|err| err.to_string())?;
                         Ok(data)
                     })?;
-                let hash_data = blake2b_256(&binary);
+                let hash_data = blake2b_256(binary);
                 let slice = if m.is_present("prefix-160") {
                     &hash_data[0..20]
                 } else {
@@ -826,11 +826,11 @@ fn sign_message<P: ?Sized + AsRef<[ChildNumber]>>(
         (None, Some((plugin_mgr, account)), false) => plugin_mgr
             .keystore_handler()
             .sign(account, path, message.clone(), target, password, false)
-            .map(|bytes| (&bytes[..]).to_vec()),
+            .map(|bytes| bytes[..].to_vec()),
         (None, Some((plugin_mgr, account)), true) => plugin_mgr
             .keystore_handler()
             .sign(account, path, message.clone(), target, password, true)
-            .map(|bytes| (&bytes[..]).to_vec()),
+            .map(|bytes| bytes[..].to_vec()),
         _ => Err(String::from("Both privkey and key store is missing")),
     }
 }
@@ -866,7 +866,7 @@ fn gen_multisig_addr(
 fn to_timestamp(input: &str) -> Result<u64, String> {
     let date = NaiveDate::parse_from_str(input, "%Y-%m-%d").map_err(|err| format!("{:?}", err))?;
     let date = NaiveDateTime::parse_from_str(
-        &format!("{} 00:00:00", date.to_string()),
+        &format!("{} 00:00:00", date),
         "%Y-%m-%d  %H:%M:%S",
     )
     .map_err(|err| format!("{:?}", err))?;

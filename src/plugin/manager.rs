@@ -671,7 +671,7 @@ impl ServiceProvider {
                                         Ok(keystore_process) => {
                                             let handler = keystore_daemon
                                                 .as_ref()
-                                                .or_else(|| keystore_process.as_ref())
+                                                .or(keystore_process.as_ref())
                                                 .map(|process| process.handler())
                                                 .unwrap_or_else(|| default_keystore.handler())
                                                 .clone();
@@ -725,7 +725,7 @@ impl ServiceProvider {
                                         Ok(indexer_process) => {
                                             let handler = indexer_daemon
                                                 .as_ref()
-                                                .or_else(|| indexer_process.as_ref())
+                                                .or(indexer_process.as_ref())
                                                 .map(|process| process.handler())
                                                 .unwrap_or_else(|| default_indexer.handler())
                                                 .clone();
@@ -1066,6 +1066,7 @@ impl PluginProcess {
 pub struct Plugin {
     // Executable binary path
     path: PathBuf,
+    #[allow(dead_code)]
     args: Vec<String>,
     is_active: bool,
 }

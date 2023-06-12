@@ -106,7 +106,7 @@ fn process(
     state: &Arc<RwLock<IndexThreadState>>,
     shutdown: &Arc<AtomicBool>,
 ) -> Result<(bool, bool), String> {
-    if let Some((exit, rebuild)) = try_recv(&receiver, rpc_client) {
+    if let Some((exit, rebuild)) = try_recv(receiver, rpc_client) {
         return Ok((exit, rebuild));
     }
 
@@ -143,7 +143,7 @@ fn process(
                     if shutdown.load(Ordering::Relaxed) {
                         return Ok(Some((true, false)));
                     }
-                    if let Some((exit, rebuild)) = try_recv(&receiver, rpc_client) {
+                    if let Some((exit, rebuild)) = try_recv(receiver, rpc_client) {
                         return Ok(Some((exit, rebuild)));
                     }
                     if let Some(next_block) =
@@ -191,7 +191,7 @@ Or you can use follow command to rebuild index database:
         if shutdown.load(Ordering::Relaxed) {
             return Ok((true, false));
         }
-        if let Some((exit, rebuild)) = try_recv(&receiver, rpc_client) {
+        if let Some((exit, rebuild)) = try_recv(receiver, rpc_client) {
             return Ok((exit, rebuild));
         }
         thread::sleep(Duration::from_millis(100));

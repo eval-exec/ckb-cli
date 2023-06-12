@@ -208,9 +208,7 @@ impl InteractiveEnv {
 
     fn print_logo(&mut self) {
         println!(
-            "{}",
-            format!(
-                r#"
+            r#"
   _   _   ______   _____   __      __ {}   _____
  | \ | | |  ____| |  __ \  \ \    / / {}  / ____|
  |  \| | | |__    | |__) |  \ \  / /  {} | (___
@@ -218,13 +216,12 @@ impl InteractiveEnv {
  | |\  | | |____  | | \ \     \  /    {}  ____) |
  |_| \_| |______| |_|  \_\     \/     {} |_____/
 "#,
-                Green.bold().paint(r#"  ____  "#),
-                Green.bold().paint(r#" / __ \ "#),
-                Green.bold().paint(r#"| |  | |"#),
-                Green.bold().paint(r#"| |  | |"#),
-                Green.bold().paint(r#"| |__| |"#),
-                Green.bold().paint(r#" \____/ "#),
-            )
+            Green.bold().paint(r#"  ____  "#),
+            Green.bold().paint(r#" / __ \ "#),
+            Green.bold().paint(r#"| |  | |"#),
+            Green.bold().paint(r#"| |  | |"#),
+            Green.bold().paint(r#"| |__| |"#),
+            Green.bold().paint(r#" \____/ "#),
         );
     }
 
@@ -246,7 +243,7 @@ impl InteractiveEnv {
         line: &str,
         env_regex: &Regex,
     ) -> Result<bool, String> {
-        let args = match shell_words::split(self.config.replace_cmd(&env_regex, line).as_str()) {
+        let args = match shell_words::split(self.config.replace_cmd(env_regex, line).as_str()) {
             Ok(args) => args,
             Err(e) => return Err(e.to_string()),
         };
@@ -347,13 +344,13 @@ impl InteractiveEnv {
                 ("rpc", Some(sub_matches)) => {
                     check_alerts(&mut self.rpc_client);
                     let output = RpcSubCommand::new(&mut self.rpc_client, &mut self.raw_rpc_client)
-                        .process(&sub_matches, debug)?;
+                        .process(sub_matches, debug)?;
                     output.print(format, color);
                     Ok(())
                 }
                 ("account", Some(sub_matches)) => {
                     let output = AccountSubCommand::new(&mut self.plugin_mgr, &mut self.key_store)
-                        .process(&sub_matches, debug)?;
+                        .process(sub_matches, debug)?;
                     output.print(format, color);
                     Ok(())
                 }
@@ -364,7 +361,7 @@ impl InteractiveEnv {
                         &mut self.plugin_mgr,
                         genesis_info,
                     )
-                    .process(&sub_matches, debug)?;
+                    .process(sub_matches, debug)?;
                     output.print(format, color);
                     Ok(())
                 }
@@ -372,24 +369,24 @@ impl InteractiveEnv {
                     let genesis_info = self.genesis_info().ok();
                     let output =
                         TxSubCommand::new(&mut self.rpc_client, &mut self.plugin_mgr, genesis_info)
-                            .process(&sub_matches, debug)?;
+                            .process(sub_matches, debug)?;
                     output.print(format, color);
                     Ok(())
                 }
                 ("util", Some(sub_matches)) => {
                     let output = UtilSubCommand::new(&mut self.rpc_client, &mut self.plugin_mgr)
-                        .process(&sub_matches, debug)?;
+                        .process(sub_matches, debug)?;
                     output.print(format, color);
                     Ok(())
                 }
                 ("plugin", Some(sub_matches)) => {
                     let output =
-                        PluginSubCommand::new(&mut self.plugin_mgr).process(&sub_matches, debug)?;
+                        PluginSubCommand::new(&mut self.plugin_mgr).process(sub_matches, debug)?;
                     output.print(format, color);
                     Ok(())
                 }
                 ("molecule", Some(sub_matches)) => {
-                    let output = MoleculeSubCommand::new().process(&sub_matches, debug)?;
+                    let output = MoleculeSubCommand::new().process(sub_matches, debug)?;
                     output.print(format, color);
                     Ok(())
                 }
@@ -403,7 +400,7 @@ impl InteractiveEnv {
                         Arc::clone(&self.index_state),
                         wait_for_sync,
                     )
-                    .process(&sub_matches, debug)?;
+                    .process(sub_matches, debug)?;
                     output.print(format, color);
                     Ok(())
                 }
@@ -417,7 +414,7 @@ impl InteractiveEnv {
                         self.index_controller.clone(),
                         wait_for_sync,
                     )
-                    .process(&sub_matches, debug)?;
+                    .process(sub_matches, debug)?;
                     output.print(format, color);
                     Ok(())
                 }
@@ -431,7 +428,7 @@ impl InteractiveEnv {
                         self.index_controller.clone(),
                         wait_for_sync,
                     )
-                    .process(&sub_matches, debug)?;
+                    .process(sub_matches, debug)?;
                     output.print(format, color);
                     Ok(())
                 }

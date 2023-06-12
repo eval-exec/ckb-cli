@@ -161,6 +161,7 @@ impl<'a> WalletSubCommand<'a> {
             ])
     }
 
+    #[allow(clippy::nonminimal_bool)]
     pub fn transfer(
         &mut self,
         args: TransferArgs,
@@ -331,8 +332,7 @@ impl<'a> WalletSubCommand<'a> {
                 Script::from(from_locked_address.payload()).calc_script_hash(),
             );
             for lock_arg in std::iter::once(&from_lock_arg).chain(path_map.keys()) {
-                let mut sighash_addresses = Vec::default();
-                sighash_addresses.push(AddressPayload::from_pubkey_hash(lock_arg.clone()));
+                let sighash_addresses = vec![AddressPayload::from_pubkey_hash(lock_arg.clone())];
                 let require_first_n = 0;
                 let threshold = 1;
                 let cfg = MultisigConfig::new_with(sighash_addresses, require_first_n, threshold)?;
@@ -388,8 +388,8 @@ impl<'a> WalletSubCommand<'a> {
         }) {
             return Err(format!(
                 "Index database may not ready, sync process: {}, error: {}",
-                self.index_controller.state().read().to_string(),
-                err.to_string(),
+                self.index_controller.state().read(),
+                err,
             ));
         }
 

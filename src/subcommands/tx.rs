@@ -179,7 +179,7 @@ impl<'a> TxSubCommand<'a> {
                             .long("lock-arg")
                             .takes_value(true)
                             .required(true)
-                            .validator(|input| match HexParser.parse(&input) {
+                            .validator(|input| match HexParser.parse(input) {
                                 Ok(ref data) if data.len() == 20 || data.len() == 28 => Ok(()),
                                 Ok(ref data) => Err(format!("invalid data length: {}", data.len())),
                                 Err(err) => Err(err),
@@ -191,7 +191,7 @@ impl<'a> TxSubCommand<'a> {
                             .long("signature")
                             .takes_value(true)
                             .required(true)
-                            .validator(|input| match HexParser.parse(&input) {
+                            .validator(|input| match HexParser.parse(input) {
                                 Ok(ref data) if data.len() == SECP_SIGNATURE_SIZE => Ok(()),
                                 Ok(ref data) => Err(format!("invalid data length: {}", data.len())),
                                 Err(err) => Err(err),
@@ -249,7 +249,7 @@ impl<'a> CliSubCommand for TxSubCommand<'a> {
                 let repr = ReprTxHelper::new(helper, network);
 
                 if let Some(tx_file) = tx_file_opt {
-                    let mut file = fs::File::create(&tx_file).map_err(|err| err.to_string())?;
+                    let mut file = fs::File::create(tx_file).map_err(|err| err.to_string())?;
                     let content =
                         serde_json::to_string_pretty(&repr).map_err(|err| err.to_string())?;
                     file.write_all(content.as_bytes())
@@ -453,11 +453,11 @@ impl<'a> CliSubCommand for TxSubCommand<'a> {
                     .value_of("from-account")
                     .map(|input| {
                         FixedHashParser::<H160>::default()
-                            .parse(&input)
+                            .parse(input)
                             .or_else(|err| {
                                 let result: Result<Address, String> = AddressParser::new_sighash()
                                     .set_network(network)
-                                    .parse(&input);
+                                    .parse(input);
                                 result
                                     .map(|address| {
                                         H160::from_slice(&address.payload().args()).unwrap()
@@ -751,9 +751,7 @@ impl TryFrom<ReprTxHelper> for TxHelper {
     fn try_from(repr: ReprTxHelper) -> Result<Self, Self::Error> {
         let transaction = packed::Transaction::from(repr.transaction).into_view();
         let multisig_configs = repr
-            .multisig_configs
-            .into_iter()
-            .map(|(_, repr_cfg)| MultisigConfig::try_from(repr_cfg))
+            .multisig_configs.into_values().map(MultisigConfig::try_from)
             .collect::<Result<Vec<_>, String>>()?;
         let signatures: HashMap<Bytes, HashSet<Bytes>> = repr
             .signatures
