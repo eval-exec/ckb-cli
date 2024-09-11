@@ -818,7 +818,7 @@ dependencies = [
 [[package]]
 name = "ckb-sdk"
 version = "3.3.0"
-source = "git+https://github.com/eval-exec/ckb-sdk-rust.git?branch=exec/bump-0.118.0#7b13c2e72df69fbdf2e2ccbb113b1cb566d9ce7c"
+source = "git+https://github.com/eval-exec/ckb-sdk-rust.git?branch=exec/bump-0.118.0#9e78657057c844486b413541d4dc17bb0bfb1101"
 dependencies = [
  "anyhow",
  "bech32 0.8.1",
